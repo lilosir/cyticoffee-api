@@ -1,9 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"github.com/lilosir/cyticoffee-api/routes"
 )
 
 func main() {
-	fmt.Println("hello world")
+	r := routes.SetupRoutes()
+	r.Run(":8090") // listen and serve on 0.0.0.0:8080
 }
