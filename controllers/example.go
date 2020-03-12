@@ -2,17 +2,48 @@ package controllers
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lilosir/cyticoffee-api/models"
 )
 
+type respBody struct {
+	Message string   `json:"message"`
+	Data    []string `json:"data"`
+}
+
 // Ping controller
 func Ping(c *gin.Context) {
-	c.JSON(200, gin.H{
+	resMap := map[string]interface{}{
 		"message": "pong",
+	}
+	c.JSON(http.StatusOK, resMap)
+	// res := &respBody{
+	// 	Message: "hello",
+	// 	Data:    []string{"apple", "banana"},
+	// }
+	// jsonRes, _ := json.Marshal(res)
+	// c.Writer.WriteHeader(http.StatusOK)
+	// c.Writer.Write(jsonRes)
+}
+
+// Pong controller
+func Pong(c *gin.Context) {
+	id := c.Param("id")
+	name := c.DefaultQuery("name", "osir")
+	c.JSON(http.StatusOK, gin.H{
+		"id":   id,
+		"name": name,
 	})
+	// res := &respBody{
+	// 	Message: "hello",
+	// 	Data:    []string{"apple", "banana"},
+	// }
+	// jsonRes, _ := json.Marshal(res)
+	// c.Writer.WriteHeader(http.StatusOK)
+	// c.Writer.Write(jsonRes)
 }
 
 type Score struct {

@@ -9,6 +9,7 @@ import (
 func SetupRoutes() *gin.Engine {
 	r := gin.Default()
 	r.GET("/ping", controllers.Ping)
+	r.GET("/pong/:id", controllers.Pong)
 	r.GET("/concurrency", controllers.Concurrency)
 
 	return r
