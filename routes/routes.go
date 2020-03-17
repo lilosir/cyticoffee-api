@@ -12,5 +12,7 @@ func SetupRoutes() *gin.Engine {
 	r.GET("/pong/:id", controllers.Pong)
 	r.GET("/concurrency", controllers.Concurrency)
 
+	r.POST("/signup", controllers.SignUp)
+
 	return r
 }
