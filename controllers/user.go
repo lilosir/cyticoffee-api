@@ -26,10 +26,15 @@ func SignUp(c *gin.Context) {
 		Lastname:  lastname,
 	}
 
-	respBody := utils.NewRespMes("server error", nil)
+	respBody := utils.NewRespMes("", nil)
 	id, err := models.UserSignup(user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, respBody)
+		respBody.Message = err.Error()
+		code := http.StatusInternalServerError
+		if respBody.Message == "already exists" {
+			code = http.StatusConflict
+		}
+		c.JSON(code, respBody)
 		return
 	}
 	respBody.Message = "ok"
