@@ -6,5 +6,8 @@ import (
 
 func main() {
 	r := routes.SetupRoutes()
-	r.Run(":8090") // listen and serve on 0.0.0.0:8080
+	// ch := services.MQConn()
+	// go services.CreateHelloWorldQueue(ch)
+	// services.RunConsumer()
+	r.Run(":8090") // listen and serve on 0.0.0.0:8090
 }

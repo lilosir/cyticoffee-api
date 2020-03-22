@@ -13,6 +13,7 @@ func SetupRoutes() *gin.Engine {
 	r.GET("/concurrency", controllers.Concurrency)
 
 	r.POST("/signup", controllers.SignUp)
+	r.POST("/mq", controllers.MQ)
 
 	return r
 }
