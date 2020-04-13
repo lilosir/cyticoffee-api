@@ -8,12 +8,8 @@ import (
 // SetupRoutes creates gin engin and routes
 func SetupRoutes() *gin.Engine {
 	r := gin.Default()
-	r.GET("/ping", controllers.Ping)
-	r.GET("/pong/:id", controllers.Pong)
-	r.GET("/concurrency", controllers.Concurrency)
 
 	r.POST("/signup", controllers.SignUp)
-	r.POST("/mq", controllers.MQ)
 
 	return r
 }
