@@ -9,12 +9,12 @@ import (
 
 // User struct
 type User struct {
-	Id        int64  `json:"id"`
-	Firstname string `json:"firstname"`
-	Lastname  string `json:"lastname"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-	Phone     string `json:"phone"`
+	ID        int64  `json:"id"`
+	Firstname string `json:"firstname" binding:"required"`
+	Lastname  string `json:"lastname" binding:"required"`
+	Email     string `json:"email" binding:"required,email"`
+	Password  string `json:"password" binding:"required"`
+	Phone     string `json:"phone" binding:"required"`
 }
 
 //UserSignup will create a new user
