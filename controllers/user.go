@@ -1,8 +1,13 @@
 package controllers
 
 import (
+	"database/sql"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/lilosir/cyticoffee-api/models"
+	"github.com/lilosir/cyticoffee-api/serializers"
+	"github.com/lilosir/cyticoffee-api/utils"
 )
 
 //SignUp handler
@@ -13,35 +18,60 @@ func SignUp(c *gin.Context) {
 		c.Error(err)
 		return
 	}
-	// email := c.PostForm("email")
-	// password := c.PostForm("password")
-	// phone := c.PostForm("phone")
-	// firstname := c.PostForm("firstname")
-	// lastname := c.PostForm("lastname")
+	user.Password = utils.CreateSha1([]byte(user.Password))
 
-	// password = utils.CreateSha1([]byte(password))
+	apiError := utils.NewAPIError(http.StatusInternalServerError, "server error", "")
+	err := models.UserSignup(user)
+	if err != nil {
+		if err.Error() == "already exists" {
+			apiError.Code = http.StatusConflict
+			apiError.Message = "user already exists"
+			c.Error(apiError)
+			return
+		}
+		c.Error(err)
+		return
+	}
 
-	// user := &models.User{
-	// 	Email:     email,
-	// 	Password:  password,
-	// 	Phone:     phone,
-	// 	Firstname: firstname,
-	// 	Lastname:  lastname,
-	// }
+	data := serializers.UserSerializer(user)
+	c.JSON(http.StatusAccepted, data)
+}
 
-	// respBody := utils.NewRespMes("", nil)
-	// id, err := models.UserSignup(user)
-	// if err != nil {
-	// 	respBody.Message = err.Error()
-	// 	code := http.StatusInternalServerError
-	// 	if respBody.Message == "already exists" {
-	// 		code = http.StatusConflict
-	// 	}
-	// 	c.JSON(code, respBody)
-	// 	return
-	// }
-	// respBody.Message = "ok"
-	// user.Id = id
-	// respBody.Data = user
-	// c.JSON(http.StatusAccepted, respBody)
+// type login struct {
+// 	email    string
+// 	password string
+// }
+
+// LogIn handler
+func LogIn(c *gin.Context) {
+	var login struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	apiErr := utils.NewAPIError(http.StatusBadRequest, "", nil)
+	if err := c.ShouldBind(&login); err != nil {
+		c.Error(err)
+		return
+	}
+
+	result, err := models.UserLogIn(login.Email, login.Password)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			apiErr.Code = http.StatusNotFound
+			apiErr.Message = "Your email does not exist"
+			c.Error(apiErr)
+			return
+		}
+		if err.Error() == "Email and password do not match" {
+			apiErr.Code = http.StatusUnauthorized
+			apiErr.Message = err.Error()
+			c.Error(apiErr)
+			return
+		}
+		c.Error(err)
+		return
+	}
+
+	data := serializers.UserSerializer(result)
+	c.JSON(http.StatusOK, data)
 }

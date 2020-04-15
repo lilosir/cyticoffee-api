@@ -13,6 +13,7 @@ func SetupRoutes() *gin.Engine {
 	r.Use(middlewares.Errors())
 	r.GET("/", controllers.Index)
 	r.POST("/signup", controllers.SignUp)
+	r.POST("/login", controllers.LogIn)
 
 	return r
 }

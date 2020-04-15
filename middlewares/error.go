@@ -29,12 +29,11 @@ func Errors() gin.HandlerFunc {
 			for _, e := range c.Errors {
 				switch e.Type {
 				case gin.ErrorTypeBind:
-
+					return
 				case gin.ErrorTypeRender:
 					fmt.Println("gin.ErrorTypeRender")
 					return
 				case gin.ErrorTypePrivate:
-					// fmt.Println("gin.ErrorTypeBind")
 					fmt.Println("gin.ErrorTypePrivate")
 					errs, ok := e.Err.(validator.ValidationErrors)
 					apiError := utils.NewAPIError(http.StatusBadRequest, "", nil)
@@ -51,11 +50,17 @@ func Errors() gin.HandlerFunc {
 						// }
 						apiError.Data = errSlice
 						apiError.Message = "Validation Error"
-					} else {
-						//custom error
-						apiError = e.Err.(*utils.APIError)
+						c.JSON(apiError.Code, apiError)
+						return
 					}
-					c.JSON(apiError.Code, apiError)
+					err, ok := e.Err.(*utils.APIError)
+					if ok {
+						apiError.Code = err.Code
+						apiError.Message = err.Error()
+						c.JSON(apiError.Code, apiError)
+						return
+					}
+					c.JSON(http.StatusInternalServerError, utils.ServerError)
 					return
 				case gin.ErrorTypePublic:
 					fmt.Println("gin.ErrorTypePublic")
@@ -65,7 +70,7 @@ func Errors() gin.HandlerFunc {
 					return
 				default:
 					if !c.Writer.Written() {
-						c.JSON(c.Writer.Status(), gin.H{"Error": e.Error()})
+						c.JSON(c.Writer.Status(), utils.ServerError)
 					}
 				}
 
