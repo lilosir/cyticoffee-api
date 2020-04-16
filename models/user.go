@@ -1,8 +1,9 @@
 package models
 
 import (
-	"errors"
+	"database/sql"
 	"fmt"
+	"net/http"
 
 	"github.com/lilosir/cyticoffee-api/db/mysql"
 	"github.com/lilosir/cyticoffee-api/utils"
@@ -45,7 +46,7 @@ func UserSignup(u User) error {
 	}
 
 	if affected <= 0 {
-		return errors.New("already exists")
+		return utils.NewAPIError(http.StatusConflict, "Email already exists", nil)
 	}
 
 	return nil
@@ -71,11 +72,15 @@ func UserLogIn(email, password string) (User, error) {
 		&user.LastActive,
 	)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			apiErr := utils.NewAPIError(http.StatusNotFound, "Your email does not exist", nil)
+			return user, apiErr
+		}
 		return user, err
 	}
 
 	if user.Password != utils.CreateSha1([]byte(password)) {
-		return user, errors.New("Email and password do not match")
+		return user, utils.PasswordNotMatch
 	}
 
 	return user, nil

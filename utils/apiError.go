@@ -10,10 +10,10 @@ type APIError struct {
 }
 
 var (
-	Success       = NewAPIError(http.StatusOK, "success", nil)
-	ServerError   = NewAPIError(http.StatusInternalServerError, "server error", nil)
-	NotFound      = NewAPIError(http.StatusNotFound, "not found", nil)
-	DatabaseError = NewAPIError(http.StatusInternalServerError, "database error", nil)
+	Success          = NewAPIError(http.StatusOK, "success", nil)
+	ServerError      = NewAPIError(http.StatusInternalServerError, "server error", nil)
+	NotFound         = NewAPIError(http.StatusNotFound, "not found", nil)
+	PasswordNotMatch = NewAPIError(http.StatusUnauthorized, "Email and password do not match", nil)
 )
 
 // NewAPIError creates a new response body
