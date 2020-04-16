@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/lilosir/cyticoffee-api/utils"
@@ -60,6 +61,9 @@ func Errors() gin.HandlerFunc {
 						c.JSON(apiError.Code, apiError)
 						return
 					}
+
+					// sentry.CaptureException(e.Err)
+					sentry.CaptureMessage(e.Err.Error())
 					c.JSON(http.StatusInternalServerError, utils.ServerError)
 					return
 				case gin.ErrorTypePublic:
