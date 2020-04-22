@@ -2,12 +2,37 @@ package controllers
 
 import (
 	"net/http"
+	"os"
 
+	"github.com/dgrijalva/jwt-go/v4"
 	"github.com/gin-gonic/gin"
 	"github.com/lilosir/cyticoffee-api/models"
 	"github.com/lilosir/cyticoffee-api/serializers"
 	"github.com/lilosir/cyticoffee-api/utils"
 )
+
+var jwtKey = []byte(os.Getenv("JWT_SECRET"))
+
+// EmailClaims email is needed to claim with
+type EmailClaims struct {
+	ID    int64  `json:"id"`
+	Email string `json:"email"`
+	jwt.StandardClaims
+}
+
+func generateJWT(id int64, email string) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &EmailClaims{
+		ID:             id,
+		Email:          email,
+		StandardClaims: jwt.StandardClaims{},
+	})
+	tokenString, err := token.SignedString(jwtKey)
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
 
 //SignUp handler
 func SignUp(c *gin.Context) {
@@ -24,6 +49,13 @@ func SignUp(c *gin.Context) {
 		c.Error(err)
 		return
 	}
+
+	tokenString, err := generateJWT(user.ID, user.Email)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	c.Header("auth", tokenString)
 
 	data := serializers.UserSerializer(user)
 	c.JSON(http.StatusAccepted, data)
@@ -45,6 +77,13 @@ func LogIn(c *gin.Context) {
 		c.Error(err)
 		return
 	}
+
+	tokenString, err := generateJWT(result.ID, result.Email)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	c.Header("auth", tokenString)
 
 	data := serializers.UserSerializer(result)
 	c.JSON(http.StatusOK, data)

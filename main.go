@@ -5,11 +5,17 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	"github.com/joho/godotenv"
 	"github.com/lilosir/cyticoffee-api/routes"
 )
 
 func main() {
-	err := sentry.Init(sentry.ClientOptions{
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	err = sentry.Init(sentry.ClientOptions{
 		Dsn:   "https://e5dac4453b1c4561ab501d2ec66569ad@o304131.ingest.sentry.io/5202155",
 		Debug: true,
 	})

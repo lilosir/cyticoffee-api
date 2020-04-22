@@ -15,5 +15,17 @@ func SetupRoutes() *gin.Engine {
 	r.POST("/signup", controllers.SignUp)
 	r.POST("/login", controllers.LogIn)
 
+	r.GET("/menu", middlewares.Authenticate(), controllers.GetMenu)
+	r.GET("/coffee", middlewares.Authenticate(), controllers.GetAllCoffee)
+	r.GET("/coffee/:id", middlewares.Authenticate(), controllers.GetCoffee)
+	r.GET("/tea", middlewares.Authenticate(), controllers.GetAllTea)
+	r.GET("/tea/:id", middlewares.Authenticate(), controllers.GetTea)
+	r.GET("/otherdrinks", middlewares.Authenticate(), controllers.GetAllOtherDrinks)
+	r.GET("/otherdrinks/:id", middlewares.Authenticate(), controllers.GetOtherDrink)
+	r.GET("/snacks", middlewares.Authenticate(), controllers.GetAllSnacks)
+	r.GET("/snacks/:id", middlewares.Authenticate(), controllers.GetSnack)
+	r.GET("/food", middlewares.Authenticate(), controllers.GetAllFood)
+	r.GET("/food/:id", middlewares.Authenticate(), controllers.GetFood)
+
 	return r
 }
