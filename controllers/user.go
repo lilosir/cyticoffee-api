@@ -3,8 +3,9 @@ package controllers
 import (
 	"net/http"
 	"os"
+	"time"
 
-	"github.com/dgrijalva/jwt-go/v4"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/lilosir/cyticoffee-api/models"
 	"github.com/lilosir/cyticoffee-api/serializers"
@@ -22,9 +23,11 @@ type EmailClaims struct {
 
 func generateJWT(id int64, email string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &EmailClaims{
-		ID:             id,
-		Email:          email,
-		StandardClaims: jwt.StandardClaims{},
+		ID:    id,
+		Email: email,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(24 * 365 * time.Hour).Unix(),
+		},
 	})
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {

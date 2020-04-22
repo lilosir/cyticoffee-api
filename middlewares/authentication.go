@@ -82,3 +82,5 @@ func checkUser(id int64) (string, error) {
 	}
 	return email, nil
 }
+
+// "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFiY0B0aWxyLmNvbSJ9.CBBrjjBiNRiZojuflfK6gQPDZhkWKRMUlQY1r0fYOy4"
