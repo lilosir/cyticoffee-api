@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -24,9 +25,16 @@ type EmailClaims struct {
 // Authenticate will check if token is valid
 func Authenticate() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tknStr := c.Request.Header["Auth"][0]
+		authHeader := c.Request.Header["Authorization"][0]
 		newErr := utils.NewAPIError(http.StatusUnauthorized, "Validation failed, please log in again.", nil)
 
+		if strings.Split(authHeader, " ")[0] != "Bearer" {
+			c.Error(newErr)
+			c.Abort()
+			return
+		}
+
+		tknStr := strings.Split(authHeader, " ")[1]
 		token, err := jwt.ParseWithClaims(tknStr, &EmailClaims{}, func(token *jwt.Token) (interface{}, error) {
 			return jwtKey, nil
 		})
@@ -38,7 +46,7 @@ func Authenticate() gin.HandlerFunc {
 		}
 
 		if claims, ok := token.Claims.(*EmailClaims); ok && token.Valid {
-			fmt.Printf("%d, %v", claims.ID, claims.Email)
+			// fmt.Printf("%d, %v", claims.ID, claims.Email)
 			email, err := checkUser(claims.ID)
 			if err != nil {
 				c.Error(err)

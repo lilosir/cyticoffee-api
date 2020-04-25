@@ -36,8 +36,8 @@ func Errors() gin.HandlerFunc {
 					return
 				case gin.ErrorTypePrivate:
 					fmt.Println("gin.ErrorTypePrivate")
-					errs, ok := e.Err.(validator.ValidationErrors)
 					apiError := utils.NewAPIError(http.StatusBadRequest, "", nil)
+					errs, ok := e.Err.(validator.ValidationErrors)
 					if ok {
 						errSlice := make([]string, len(errs))
 						for i, err := range errs {
@@ -58,12 +58,13 @@ func Errors() gin.HandlerFunc {
 					if ok {
 						apiError.Code = err.Code
 						apiError.Message = err.Error()
+						//get original data and send to sentry
+						sendToSentry(c.Request.RequestURI, err.Data)
 						c.JSON(apiError.Code, apiError)
 						return
 					}
 
-					// sentry.CaptureException(e.Err)
-					sentry.CaptureMessage(e.Err.Error())
+					sendToSentry(c.Request.RequestURI, e.Err.Error())
 					c.JSON(http.StatusInternalServerError, utils.ServerError)
 					return
 				case gin.ErrorTypePublic:
@@ -80,5 +81,12 @@ func Errors() gin.HandlerFunc {
 
 			}
 		}
+	}
+}
+
+func sendToSentry(url string, data interface{}) {
+	if data != nil {
+		styMsg := fmt.Sprintf("%s, %s", url, data)
+		sentry.CaptureMessage(styMsg)
 	}
 }
