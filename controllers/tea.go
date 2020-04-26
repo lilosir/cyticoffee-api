@@ -1,19 +1,34 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/gin-gonic/gin"
+	"github.com/lilosir/cyticoffee-api/models"
 )
 
 // GetAllTea will return the tea
 func GetAllTea(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "hi",
-	})
+	allTea, err := models.GetAllTea()
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, allTea)
 }
 
 // GetTea will return one coffee
 func GetTea(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "hi",
-	})
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	tea, err := models.GetTea(id)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	c.JSON(200, tea)
 }

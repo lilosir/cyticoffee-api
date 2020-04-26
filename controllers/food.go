@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GetAllFood will return all the food
+// GetAllFood will return the food
 func GetAllFood(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "hi",
