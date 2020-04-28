@@ -54,3 +54,23 @@ CREATE TABLE `other_drinks` (
   `feature` TINYINT NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+CREATE TABLE `snacks` (
+  `id` int(11) NOT NULL,
+  `name` varchar(64) NOT NULL DEFAULT '',
+  `base_price` DECIMAL(4, 2) NOT NULL DEFAULT 0.00,
+  `image` varchar(64),
+  `options` varchar(64),
+  `feature` TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+CREATE TABLE `food` (
+  `id` int(11) NOT NULL,
+  `name` varchar(64) NOT NULL DEFAULT '',
+  `base_price` DECIMAL(4, 2) NOT NULL DEFAULT 0.00,
+  `image` varchar(64),
+  `options` varchar(64),
+  `feature` TINYINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;

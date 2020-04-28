@@ -111,9 +111,13 @@ func GetGoods(id int, table string) (GoodsDetail, error) {
 	goodsDetail.Image = goods.Image
 	goodsDetail.Feature = goods.Feature
 
-	goodsDetail.Options, err = GetOptions(goods.Options)
-	if err != nil {
-		return goodsDetail, err
+	if goods.Options == "" {
+		goodsDetail.Options = []Options{}
+	} else {
+		goodsDetail.Options, err = GetOptions(goods.Options)
+		if err != nil {
+			return goodsDetail, err
+		}
 	}
 
 	return goodsDetail, nil
