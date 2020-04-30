@@ -15,6 +15,7 @@ var (
 	NotFound           = NewAPIError(http.StatusNotFound, "not found", nil)
 	NotFoundInDatabase = NewAPIError(http.StatusNoContent, "there is no result", nil)
 	PasswordNotMatch   = NewAPIError(http.StatusUnauthorized, "Email and password do not match", nil)
+	Unauthenticated    = NewAPIError(http.StatusUnauthorized, "Validation failed, please log in again.", nil)
 )
 
 // NewAPIError creates a new response body

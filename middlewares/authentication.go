@@ -26,7 +26,7 @@ type EmailClaims struct {
 func Authenticate() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.Request.Header["Authorization"][0]
-		newErr := utils.NewAPIError(http.StatusUnauthorized, "Validation failed, please log in again.", nil)
+		newErr := utils.Unauthenticated
 
 		if strings.Split(authHeader, " ")[0] != "Bearer" {
 			c.Error(newErr)
@@ -90,5 +90,3 @@ func checkUser(id int64) (string, error) {
 	}
 	return email, nil
 }
-
-// "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFiY0B0aWxyLmNvbSJ9.CBBrjjBiNRiZojuflfK6gQPDZhkWKRMUlQY1r0fYOy4"

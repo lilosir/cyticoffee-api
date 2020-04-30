@@ -17,7 +17,6 @@ CREATE TABLE `types` (
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
-
 CREATE TABLE `options` (
   `id` int(11) NOT NULL,
   `name` varchar(64) NOT NULL DEFAULT '',
@@ -74,3 +73,29 @@ CREATE TABLE `food` (
   `feature` TINYINT NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+CREATE TABLE `order_details` (
+  `id` int(11) NOT NULL,
+  `type_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `options` varchar(64),
+  `amount` int(11) NOT NULL DEFAULT 1,
+  `price` DECIMAL(4, 2) NOT NULL DEFAULT 0.00,
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+CREATE TABLE `orders` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `order_detail_ids` varchar(64) NOT NULL,
+  `total_price` DECIMAL(4, 2) NOT NULL DEFAULT 0.00,
+  `create_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+CREATE TABLE `status` (
+  `id` tinyint(1) NOT NULL,
+  `status` varchar(64) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
