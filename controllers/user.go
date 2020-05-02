@@ -91,10 +91,3 @@ func LogIn(c *gin.Context) {
 	data := serializers.UserSerializer(result)
 	c.JSON(http.StatusOK, data)
 }
-
-// GetMyOrders return my orders
-func GetMyOrders(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "all my orders",
-	})
-}

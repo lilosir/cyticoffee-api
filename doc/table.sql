@@ -75,7 +75,7 @@ CREATE TABLE `food` (
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 CREATE TABLE `order_details` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `type_id` int(11) NOT NULL,
   `item_id` int(11) NOT NULL,
   `options` varchar(64),
@@ -85,7 +85,7 @@ CREATE TABLE `order_details` (
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 CREATE TABLE `orders` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `order_detail_ids` varchar(64) NOT NULL,
   `total_price` DECIMAL(4, 2) NOT NULL DEFAULT 0.00,
