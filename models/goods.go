@@ -97,10 +97,10 @@ func GetGoods(id int, table string) (GoodsDetail, error) {
 		&goods.Feature,
 	)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return goodsDetail, utils.NotFound
-		}
 		fmt.Println("query and scan: ", err.Error())
+		if err == sql.ErrNoRows {
+			return goodsDetail, nil
+		}
 		apiErr.Data = err.Error()
 		return goodsDetail, apiErr
 	}

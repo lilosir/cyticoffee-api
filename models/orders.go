@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/lilosir/cyticoffee-api/db/mysql"
 	"github.com/lilosir/cyticoffee-api/utils"
@@ -153,4 +154,110 @@ func GetMyOrders(userID string) ([]Orders, error) {
 	}
 
 	return orders, nil
+}
+
+// Order struct
+type Order struct {
+	OrderDetail []OrderDetail `json:"order_detail"`
+	TotalPrice  float32       `json:"total_price"`
+	Status      string        `json:"status"`
+	CreatedAt   string        `json:"create_at"`
+}
+
+// OrderDetail struct
+type OrderDetail struct {
+	Type    string    `json:"type"`
+	Options []Options `json:"options"`
+	Amount  int       `json:"amount"`
+	Price   float32   `json:"price"`
+}
+
+// TempOrder struct
+type TempOrder struct {
+	OrderDetailIDs string `json:"order_detail_ids"`
+}
+
+// GetOrderDetails return an order history details
+func GetOrderDetails(orderID string) (Order, error) {
+	apiErr := utils.ServerError
+	var order Order
+	orderDetailIDs := ""
+	{
+		stmt, err := mysql.DBConn().Prepare(`
+			select o.order_detail_ids, o.total_price, s.status, o.create_at 
+			from orders o
+			left join status s
+			on o.status = s.id
+			where o.id=?
+		`)
+		if err != nil {
+			fmt.Println("prepare select order detail ids: ", err.Error())
+			apiErr.Data = err.Error()
+			return order, apiErr
+		}
+		defer stmt.Close()
+
+		err = stmt.QueryRow(orderID).Scan(&orderDetailIDs, &order.TotalPrice, &order.Status, &order.CreatedAt)
+		if err != nil {
+			fmt.Println("scan order detail ids: ", err.Error())
+			apiErr.Data = err.Error()
+			return order, apiErr
+		}
+	}
+	// search order details
+	{
+		deIds := strings.Split(orderDetailIDs, ",")
+		queryOrderInterface := make([]interface{}, len(deIds))
+		preS := ""
+		for i := 0; i < len(deIds); i++ {
+			preS += "?,"
+			queryOrderInterface[i] = deIds[i]
+		}
+		preS = strings.TrimSuffix(preS, ",")
+		q := "select t.name, o.item_id, o.options, o.amount, o.price " +
+			"from order_details o " +
+			"left join types t " +
+			"on t.id = o.type_id " +
+			"where o.id in (" + preS + ")"
+		stmt, err := mysql.DBConn().Prepare(q)
+		if err != nil {
+			fmt.Println("prepare select order details", err.Error())
+			apiErr.Data = err.Error()
+			return order, apiErr
+		}
+		defer stmt.Close()
+
+		rows, err := stmt.Query(queryOrderInterface...)
+		if err != nil {
+			fmt.Println("prepare query order details", err.Error())
+			apiErr.Data = err.Error()
+			return order, apiErr
+		}
+		for rows.Next() {
+			orderDetail := OrderDetail{}
+			itemID := 0
+			options := ""
+			err = rows.Scan(&orderDetail.Type, &itemID, &options, &orderDetail.Amount, &orderDetail.Price)
+			if err != nil {
+				fmt.Println("scan order details", err.Error())
+				apiErr.Data = err.Error()
+				return order, apiErr
+			}
+			gd, err := GetGoods(itemID, orderDetail.Type)
+			if err != nil {
+				return order, err
+			}
+			orderDetail.Type = gd.Name
+			fmt.Println(itemID, options, orderDetail)
+
+			orderDetail.Options, err = GetOptions(options)
+			if err != nil {
+				return order, err
+			}
+
+			order.OrderDetail = append(order.OrderDetail, orderDetail)
+		}
+	}
+
+	return order, nil
 }

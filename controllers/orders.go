@@ -39,13 +39,13 @@ func GetMyOrders(c *gin.Context) {
 }
 
 // GetOrderDetails get one order details
-/*
-	TODO:
-	create a endpoint to get the current order details, which should contains more infomation,
-	right now there is no endpoint for this, just return all the orders
-*/
 func GetOrderDetails(c *gin.Context) {
-	c.JSON(200, gin.H{
-		"message": "this is order details",
-	})
+	id := c.Param("orderID")
+	orderDetail, err := models.GetOrderDetails(id)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+
+	c.JSON(200, orderDetail)
 }

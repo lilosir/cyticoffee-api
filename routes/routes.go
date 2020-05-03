@@ -29,6 +29,7 @@ func SetupRoutes() *gin.Engine {
 
 	r.POST("/user/:userID/orders", middlewares.Authenticate(), middlewares.OnlySelf(), controllers.CreateOrders)
 	r.GET("/user/:userID/orders", middlewares.Authenticate(), middlewares.OnlySelf(), controllers.GetMyOrders)
+	r.GET("/user/:userID/orders/:orderID", middlewares.Authenticate(), middlewares.OnlySelf(), controllers.GetOrderDetails)
 
 	return r
 }
