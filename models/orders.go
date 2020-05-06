@@ -229,13 +229,15 @@ func GetOrderDetails(orderID string) (Order, error) {
 				return order, err
 			}
 			orderDetail.Type = gd.Name
-			fmt.Println(itemID, options, orderDetail)
 
-			orderDetail.Options, err = GetOptions(options)
-			if err != nil {
-				return order, err
+			if options == "" {
+				orderDetail.Options = []Options{}
+			} else {
+				orderDetail.Options, err = GetOptions(options)
+				if err != nil {
+					return order, err
+				}
 			}
-
 			order.OrderDetail = append(order.OrderDetail, orderDetail)
 		}
 	}

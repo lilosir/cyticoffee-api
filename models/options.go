@@ -26,7 +26,7 @@ func GetOptions(ids string) ([]Options, error) {
 	whereIds = strings.TrimSuffix(whereIds, ",")
 	stmt, err := mysql.DBConn().Prepare("select * from options where id in (" + whereIds + ")")
 	if err != nil {
-		fmt.Println("prepare: ", err.Error())
+		fmt.Println("prepare select from options ", err.Error())
 		apiErr.Data = err.Error()
 		return nil, apiErr
 	}
