@@ -108,6 +108,7 @@ func GetMyOrders(userID string) ([]Orders, error) {
 		apiErr.Data = err.Error()
 		return orders, apiErr
 	}
+	defer stmt.Close()
 
 	rows, err := stmt.Query(userID)
 	if err != nil {
