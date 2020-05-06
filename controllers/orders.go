@@ -7,7 +7,7 @@ import (
 
 // Order struct
 type Order struct {
-	Order []models.OrderItem
+	Order []models.OrderItem `json:"order"`
 }
 
 // CreateOrders add a new order
