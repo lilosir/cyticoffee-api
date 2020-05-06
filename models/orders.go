@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
 
@@ -180,6 +181,9 @@ func GetOrderDetails(orderID string) (Order, error) {
 
 		err = stmt.QueryRow(orderID).Scan(&orderDetailIDs, &order.TotalPrice, &order.Status, &order.CreatedAt)
 		if err != nil {
+			if err == sql.ErrNoRows {
+				return order, nil
+			}
 			fmt.Println("scan order detail ids: ", err.Error())
 			apiErr.Data = err.Error()
 			return order, apiErr
