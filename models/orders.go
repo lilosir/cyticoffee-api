@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/lilosir/cyticoffee-api/db/mysql"
@@ -35,59 +34,39 @@ func CreateOrders(order []OrderItem, userID interface{}) error {
 		apiErr.Data = "transaction begin error"
 		return apiErr
 	}
-	orderDetailsIdsString := ""
+	orderDetailsIdsIntArray := make([]int, len(order))
 	totalPrice := float32(0)
 	{
-		valueStmt := ""
-		values := []interface{}{}
 		for i := 0; i < len(order); i++ {
-			valueStmt += "(?,?,?,?,?)"
-			if i != len(order)-1 {
-				valueStmt += ","
+			stmt, err := tx.Prepare("insert into order_details " +
+				"(type_id, item_id, options, amount, price)" +
+				"values (?,?,?,?,?)")
+			if err != nil {
+				tx.Rollback()
+				fmt.Println("prepare insert into order_details: ", err.Error())
+				apiErr.Data = err.Error()
+				return apiErr
 			}
-			options := ""
-			for j := 0; j < len(order[i].Options); j++ {
-				options += strconv.Itoa(order[i].Options[j])
-				if j != len(order[i].Options)-1 {
-					options += ","
-				}
-			}
-			values = append(values, order[i].TypeID, order[i].ItemID, options, order[i].Amount, order[i].Price)
+			defer stmt.Close()
 
-			//add to total price
+			stringOptions := utils.IntArrayToString(order[i].Options)
+			result, err := stmt.Exec(order[i].TypeID, order[i].ItemID, stringOptions, order[i].Amount, order[i].Price)
+			if err != nil {
+				tx.Rollback()
+				fmt.Println("Exec insert into order_details: ", err.Error())
+				apiErr.Data = err.Error()
+				return apiErr
+			}
+			orderDetailID, err := result.LastInsertId()
+			if err != nil {
+				tx.Rollback()
+				fmt.Println("insert into order_details return id: ", err.Error())
+				apiErr.Data = err.Error()
+				return apiErr
+			}
 			totalPrice += float32(order[i].Amount) * order[i].Price
+			orderDetailsIdsIntArray[i] = int(orderDetailID)
 		}
-		insetStmt := `insert into order_details
-		(type_id, item_id, options, amount, price)
-		values ` + valueStmt + `;`
-		// fmt.Println(insetStmt)
-
-		stmt, err := tx.Prepare(insetStmt)
-		if err != nil {
-			tx.Rollback()
-			fmt.Println("prepare: ", err.Error())
-			apiErr.Data = err.Error()
-			return apiErr
-		}
-		defer stmt.Close()
-
-		result, err := stmt.Exec(values...)
-		if err != nil {
-			tx.Rollback()
-			fmt.Println("exec: ", err.Error())
-			apiErr.Data = err.Error()
-			return apiErr
-		}
-
-		firstID, _ := result.LastInsertId()
-		rows, _ := result.RowsAffected()
-
-		generatedOrderDetailsIds := make([]int64, rows)
-		for i := 0; i < int(rows); i++ {
-			generatedOrderDetailsIds[i] = firstID + int64(i)
-		}
-		orderDetailsIdsString = utils.Int64ArrayToString(generatedOrderDetailsIds)
-		// fmt.Println(orderDetailsIdsString)
 	}
 	{
 		stmt, err := tx.Prepare("Insert into orders (user_id, order_detail_ids, total_price, status) values (?,?,?,?)")
@@ -99,6 +78,7 @@ func CreateOrders(order []OrderItem, userID interface{}) error {
 		}
 		defer stmt.Close()
 
+		orderDetailsIdsString := utils.IntArrayToString(orderDetailsIdsIntArray)
 		_, err = stmt.Exec(userID, orderDetailsIdsString, totalPrice, 0)
 		if err != nil {
 			tx.Rollback()
