@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lilosir/cyticoffee-api/controllers"
 	"github.com/lilosir/cyticoffee-api/middlewares"
+	"github.com/lilosir/cyticoffee-api/services/rabbitmq"
 )
 
 // SetupRoutes creates gin engin and routes
@@ -31,5 +32,7 @@ func SetupRoutes() *gin.Engine {
 	r.GET("/user/:userID/orders", middlewares.Authenticate(), middlewares.OnlySelf(), controllers.GetMyOrders)
 	r.GET("/user/:userID/orders/:orderID", middlewares.Authenticate(), middlewares.OnlySelf(), controllers.GetOrderDetails)
 
+	rabbitmq.InitSendEmailQueue()
+	r.GET("/amqp/test", middlewares.Authenticate(), controllers.RabbitMQTest)
 	return r
 }
